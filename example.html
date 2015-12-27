@@ -81,9 +81,9 @@ var QueryString = function () {
     return query_string;
 }();
 if (QueryString.guided == "true"){
-	$('#control').append('<input id="model_type" type="hidden" value="'+QueryString.model_type+'"><input type="hidden" name="number_seeds" value="'+QueryString.number_seeds+'" id="number_seeds"><input type="hidden" name="beta" value="'+QueryString.beta_simple+'" id="beta_simple"><input type="hidden" name="mu" value="'+QueryString.mu_simple+'" id="mu_simple"><input  type="hidden" name="beta" value="'+QueryString.beta_complex+'" id="beta_complex"><input  type="hidden" name="mu" value="'+QueryString.mu_complex+'" id="mu_complex"><div style="float:none;padding-bottom:30px;"><div style="float:left;" width="120px"><input type="submit" value="Run Model" onclick="run()" id="run_model" disabled></div><div style="float:right;margin-left:-400px" width="120px"><input type="submit" value="New Network and Seed" onclick="initial = newNet(initial)" id="new_net" disabled></div></div><div id="mynetwork" style="margin-top:10px;"></div>')
+	$('#control').append('<input id="model_type" type="hidden" value="'+QueryString.model_type+'"><input type="hidden" name="number_seeds" value="'+QueryString.number_seeds+'" id="number_seeds"><input type="hidden" name="beta" value="'+QueryString.beta_simple+'" id="beta_simple"><input type="hidden" name="mu" value="'+QueryString.mu_simple+'" id="mu_simple"><input  type="hidden" name="beta" value="'+QueryString.beta_complex+'" id="beta_complex"><input  type="hidden" name="mu" value="'+QueryString.mu_complex+'" id="mu_complex"><div style="float:none;padding-bottom:30px;"><div style="float:left;" width="120px"><input type="button" value="Run Model" onclick="run(initial)" id="run_model" disabled></div><div style="float:right;margin-left:-400px" width="120px"><input type="button" value="New Network and Seed" onclick="newNet(initial)" id="new_net" disabled></div></div><div id="mynetwork" style="margin-top:10px;"></div>')
 } else {
-	$('#control').append('<div class="radios" width="600px;">	<nobr>		<span >Contagion type:</span>		<input id="model_type" type="hidden" value="simple">		<span id="simple_link">Simple</span> | <span id="complex_link"><a href="#" onclick="flipMenu(\'complex\')">Complex</a></span>	</nobr></div><div id="seeds">	How many initial infected:<input style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="number_seeds" value="1" id="number_seeds"><br/></div><div id="simple">	How likely you\'ll share when you see it: <input style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="beta" value="0.5" id="beta_simple"><br/>	How quickly until people stop caring (0-1): <input style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="mu" value="0.3" id="mu_simple"><br/></div><div id="complex">	Percent of friends infected for you to get infected: <input  style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="beta" value="0.5" id="beta_complex"><br/>	How quickly until people stop caring (0-1): <input  style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="mu" value="0.3" id="mu_complex"><br/></div><div style="float:none;padding-bottom:30px;"><div style="float:left;" width="120px">	<input type="submit" value="Run Model" onclick="run()" id="run_model" disabled></div><div style="float:right;margin-left:-400px" width="120px">	<input type="submit" value="New Network and Seed" onclick="initial = newNet(initial)" id="new_net" disabled></div></div><div id="mynetwork" style="margin-top:10px;"></div>')
+	$('#control').append('<div class="radios" width="600px;">	<nobr>		<span >Contagion type:</span>		<input id="model_type" type="hidden" value="simple">		<span id="simple_link">Simple</span> | <span id="complex_link"><a href="#" onclick="flipMenu(\'complex\')">Complex</a></span>	</nobr></div><div id="seeds">	How many initial infected:<input style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="number_seeds" value="1" id="number_seeds"><br/></div><div id="simple">	How likely you\'ll share when you see it: <input style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="beta" value="0.5" id="beta_simple"><br/>	How quickly until people stop caring (0-1): <input style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="mu" value="0.3" id="mu_simple"><br/></div><div id="complex">	Percent of friends infected for you to get infected: <input  style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="beta" value="0.5" id="beta_complex"><br/>	How quickly until people stop caring (0-1): <input  style="position:absolute;margin-top:5px;width:80px;height:24px" type="text" name="mu" value="0.3" id="mu_complex"><br/></div><div style="float:none;padding-bottom:30px;"><div style="float:left;" width="120px">	<input type="button" value="Run Model" onclick="run(initial)" id="run_model" disabled></div><div style="float:right;margin-left:-400px" width="120px">	<input type="button" value="New Network and Seed" onclick="newNet(initial)" id="new_net" disabled></div></div><div id="mynetwork" style="margin-top:10px;"></div>')
 	document.getElementById("complex").style.display = "none";
 }
 
@@ -212,7 +212,7 @@ function generateNet(node_count, maxk, power, mink, net_type){
 		statuses[numberToLetters(i+1)] = 'susceptible'
 	}
 	var next_statuses = jQuery.extend(true, {}, statuses);
-	return {container: container, dataset: new vis.DataSet(data, options), net: new vis.Network(container, data, options), options: options, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges}
+	return {container: container, net: new vis.Network(container, data, options), dataset: new vis.DataSet(data, options), options: options, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges}
 }
 function neighbors(node_id, edgeset){
 	neighbor_set = []
@@ -416,7 +416,7 @@ function runSIRComplexStep(initial, beta, mu){
 	return current_states
 	finish_model(step, all_states)
 }
-function run(){
+function run(initial){
 	document.getElementById("run_model").disabled = true;
 	document.getElementById("new_net").disabled = true;	
 	console.log(initial.statuses)
@@ -431,16 +431,16 @@ function run(){
 		seed_count = 1
 		document.getElementById("number_seeds").value = seed_count
 	}
-	if (seed_count > 100){
-		seed_count = 100
+	if (seed_count > node_count){
+		seed_count = node_count
 		document.getElementById("number_seeds").value = seed_count
 	}
 	if (seeds.length != seed_count){
 		seeds = []
 		while (seeds.length < seed_count){
-			seed = Math.round(Math.random()*100)
+			seed = Math.round(Math.random()*node_count)
 			while (seeds.indexOf(seed) != -1){
-				seed = Math.round(Math.random()*100)
+				seed = Math.round(Math.random()*node_count)
 			}
 			seeds.push(seed)
 		}		
@@ -493,12 +493,12 @@ maxk = node_count/2
 power = -2.5
 mink = 1
 seed_count = parseInt(document.getElementById("number_seeds").value)
-initial = generateNet(node_count, maxk, power, mink, QueryString.model)
+var initial = generateNet(node_count, maxk, power, mink, QueryString.model)
 seeds = []
 while (seeds.length < seed_count){
-	seed = Math.round(Math.random()*100)
+	seed = Math.round(Math.random()*node_count)
 	while (seeds.indexOf(seed) != -1){
-		seed = Math.round(Math.random()*100)
+		seed = Math.round(Math.random()*node_count)
 	}
 	seeds.push(seed)
 }
@@ -509,12 +509,15 @@ initial.net.on("stabilized", function (ctx) {
 function newNet(initial){
 	document.getElementById("run_model").disabled = true;
 	document.getElementById("new_net").disabled = true;	
-	initial = generateNet(node_count, maxk, power, mink, QueryString.model)
+	new_net = generateNet(node_count, maxk, power, mink, QueryString.model)
+	initial.net = new_net.net
+	initial.statuses = new_net.statuses
+	initial.next_statuses = new_net.next_statuses
 	seeds = []
 	while (seeds.length < seed_count){
-		seed = Math.round(Math.random()*100)
+		seed = Math.round(Math.random()*node_count)
 		while (seeds.indexOf(seed) != -1){
-			seed = Math.round(Math.random()*100)
+			seed = Math.round(Math.random()*node_count)
 		}
 		seeds.push(seed)
 	}
@@ -525,6 +528,7 @@ function newNet(initial){
 	return initial
 }
 </script>
+return {container: container, dataset: , net: new vis.Network(container, data, options), options: options, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges}
 
 </body>
 </html>
