@@ -302,7 +302,6 @@ function runSIRSimple(initial, beta, mu, seeds){
 	all_states = [current_states]
 	new_infection_counts = [seed_count]
 	for (var i = 0; i < seeds.length; i++){
-		console.log(numberToLetters(seeds[i]+1))
 		updateNode(numberToLetters(seeds[i]+1), "infected", initial)
 	}
 	initial.statuses = initial.next_statuses
@@ -357,7 +356,6 @@ function runSIRSimpleStep(initial, beta, mu){
 	new_infected = new_infection_counts
 	new_infected.push(this_infected)
 	document.getElementById("infection_result").innerHTML = (Math.round(count_state(current_states, "infected")+count_state(current_states, "recovered"))*100)/100
-	console.log(new_infected)
 	document.getElementById("r_zero").innerHTML = Math.round(average_r_zero(new_infected)*100)/100
 	return {states: current_states, new_infected: this_infected}
 }
@@ -423,13 +421,11 @@ function run(initial){
 	document.getElementById("run_model").disabled = true;
 	document.getElementById("new_net").disabled = true;	
 	document.getElementById("new_seed").disabled = true;
-	console.log(initial.statuses)
 	initial.statuses = {}
 	for (var i = 0; i < node_count; i++){
 		initial.statuses[numberToLetters(i+1)] = 'susceptible'
 		initial.next_statuses[numberToLetters(i+1)] = 'susceptible'
 	}
-	console.log(initial.statuses)
 	seed_count = parseInt(document.getElementById("number_seeds").value)
 	if (seed_count < 1){
 		seed_count = 1
