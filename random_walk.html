@@ -167,7 +167,7 @@ function generateSmallWorld(node_count, maxk, power, mink, label_start_i){
 	}
 	edge_matched = {}
   for (var i = 0; i < node_labels.length; i++) {
-		nodes.push({id: node_labels[i], label: node_labels[i], font:{size:parseInt(Math.random()*100)+25}})
+		nodes.push({id: node_labels[i], label: node_labels[i], font:{size:parseInt(Math.random()*50)+5}})
 		if (edge_matched[i] == null){
 			edge_matched[i] = []
 		}
@@ -288,7 +288,7 @@ function runRandomWalk(initial){
 		finish_model(step, all_states)
 		document.getElementById("t_step").innerHTML = t
 		t += 1
-	}, 100);
+	}, 250);
 }
 function runRandomWalkStep(initial, step, all_states){
 	current_states = []
@@ -300,10 +300,10 @@ function runRandomWalkStep(initial, step, all_states){
 			neighbor_set = neighbors(numberToLetters(i+1), initial)
       this_risk = initial.risks[numberToLetters(i+1)]
       current_count = initial.net.findNode(numberToLetters(i+1))[0].options.font.size 
-      loss_count = current_count*this_risk
-      remains = (current_count-loss_count)/10
-      leaves = current_count-loss_count-remains
-      apportionment = leaves/neighbor_set.length
+      loss_count = parseInt(current_count*this_risk)
+      remains = parseInt((current_count-loss_count)/10)
+      leaves = parseInt(current_count-loss_count-remains)
+      apportionment = parseInt(leaves/neighbor_set.length)
       vals = []
       for (var j = 0; j < neighbor_set.length; j++){
         this_val = apportionment
@@ -313,6 +313,7 @@ function runRandomWalkStep(initial, step, all_states){
         }
         vals.push(this_val)
       }
+      console.log(vals)
       initial.net.findNode(numberToLetters(i+1))[0].setOptions({font: {size: current_count-loss_count-vals.reduce(add, 0)}})
       initial.statuses[numberToLetters(i+1)] = current_count-loss_count-vals.reduce(add, 0)
       for (var j = 0; j < neighbor_set.length; j++){
@@ -337,7 +338,7 @@ function run(initial){
   runRandomWalk(initial)
 }
 node_count = 50
-maxk = node_count/2
+maxk = node_count/3
 power = -2.5
 mink = 1
 
