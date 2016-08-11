@@ -1,0 +1,367 @@
+
+<!doctype html>
+<html>
+<head>
+  <title>SIR Model on Simple and Complex Networks</title>
+  <link href="http://fonts.googleapis.com/css?family=Noto+Sans:300,400,700" rel="stylesheet" type="text/css">
+   <link href="http://fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic" rel="stylesheet" type="text/css">
+   <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+   <link href="http://dgaffney.github.io/style.css?v=1877476657" rel="stylesheet" type="text/css">
+   <link href="http://dgaffney.github.io/animate.min.css?v=1877476657" rel="stylesheet" type="text/css">
+   <link href="http://dgaffney.github.io/prism.css?v=1877476657" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.11.0/vis.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+
+  <link href="http://visjs.org/dist/vis.css" rel="stylesheet" type="text/css" />
+
+  <style type="text/css">
+    body {
+      margin: 20px;
+      background: #fff;
+    }
+    #mynetwork {
+      width: 600px;
+      height: 400px;
+      border: 1px solid lightgray;
+    }
+		#control{
+			width: 600px;
+		}
+		.radios > span
+		{
+		    white-space: nowrap;
+		}
+		.post-template #main, .page-template #main{
+			padding: 0;
+		}
+/*		input[type="radio"] {
+		   display: none;
+		}
+
+		input[type="radio"] + div {
+		   height: 20px;
+		   width: 20px;
+		   display: inline-block;
+		   cursor: pointer;
+		   vertical-align: middle;
+		   background: #FFF;
+		   border: 1px solid #d2d2d2;
+		   border-radius: 100%;
+		}*/
+		
+  </style>
+</head>
+<body class="post-template">
+	<section class="post-content">
+		<main id="main" class="content">
+			<form id="control">
+        <div>
+          <input id="model_type" type="hidden" value="random_walk">
+          <input type="hidden" name="number_seeds" value="3" id="number_seeds">
+          <div style="padding-left: 20px; float:none;padding-bottom:30px;">
+            <div style="float:left;" width="120px">
+              <input type="button" value="Run Model" onclick="run(initial)" id="run_model" disabled>
+            </div>
+            <div style="float:left;margin-left:480px" width="120px">
+              <div style="float:right;margin-left:-400px" width="120px">
+                <input type="button" value="New Network and Seed" onclick="newNet(initial)" id="new_net" disabled>
+              </div>
+            </div>
+          </div>
+          <div id="mynetwork" style="margin-top:10px;"></div>
+			</form>
+			<p style="width:600px">
+				<span style="padding-left: 20px; padding-right:20px;">T-Step: <span id="t_step">0</span></span>
+				<span >Walkers left: <span id="walkers_left">0</span></span>
+			</p>
+		</main>
+	</section>
+<script type="text/javascript">
+function add(a, b) {
+    return a + b;
+}
+var QueryString = function () {
+  // This function is anonymous, is executed immediately and 
+  // the return value is assigned to QueryString!
+  var query_string = {};
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+        // If first entry with this name
+    if (typeof query_string[pair[0]] === "undefined") {
+      query_string[pair[0]] = decodeURIComponent(pair[1]);
+        // If second entry with this name
+    } else if (typeof query_string[pair[0]] === "string") {
+      var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+      query_string[pair[0]] = arr;
+        // If third or later entry with this name
+    } else {
+      query_string[pair[0]].push(decodeURIComponent(pair[1]));
+    }
+  } 
+    return query_string;
+}();
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function flipMenu(clicked_val){
+	var other_val
+	if(clicked_val == "simple"){
+		other_val = "complex"
+	} else {
+		other_val = "simple"
+	}
+	document.getElementById('model_type').value = clicked_val
+	document.getElementById(other_val+"_link").innerHTML = "<a href=\"#\" onclick=\"flipMenu('"+other_val+"')\">"+capitalizeFirstLetter(other_val)+"</a>"
+	document.getElementById(clicked_val+"_link").innerHTML = capitalizeFirstLetter(clicked_val)
+	document.getElementById(clicked_val).style.display = "block";
+	document.getElementById(other_val).style.display = "none";
+}
+var charCodeOfA = "A".charCodeAt(0),
+    alphabetLength = "Z".charCodeAt(0) - charCodeOfA + 1;
+
+function numberToLetters(nNum) {
+    if (nNum <= alphabetLength) {
+        return convertNumberToLetter(nNum);
+    } else {
+        var firstNumber = Math.floor((nNum - 1) / alphabetLength);
+        var firstLetter = convertNumberToLetter(firstNumber);
+
+        var secondNumber = (nNum % alphabetLength) || alphabetLength;
+        var secondLetter = convertNumberToLetter(secondNumber);
+
+        return firstLetter + secondLetter;
+    }
+}
+
+function convertNumberToLetter(nNum) {
+    var charCode = charCodeOfA + nNum - 1;
+    return String.fromCharCode(charCode);
+}
+function shuffle(o){
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+}
+function gammaDecay(node_count, mink, maxk, power){
+	set = []
+	for (var i = 0; i < node_count; i++){
+		first = (Math.pow(maxk, power+1)-Math.pow(mink, power+1))
+		second = Math.pow(mink, power+1)
+		third = (first * Math.random()+second)
+		fourth = Math.round(Math.pow(third, (1/(power+1))))
+		set.push(fourth)
+	}
+	return set
+}
+function generateSmallWorld(node_count, maxk, power, mink, label_start_i){
+	var nodes = []
+	var edges = []
+  degree_dist = gammaDecay(node_count, mink, maxk, power)
+	node_labels = []
+	for(var i = 0; i < node_count; i++){
+		node_labels.push(numberToLetters(i+1+label_start_i))
+	}
+	edge_matched = {}
+  for (var i = 0; i < node_labels.length; i++) {
+    size = 0
+    if (i == 0){
+      size = 125
+    }
+		nodes.push({id: node_labels[i], label: node_labels[i], font:{size:size+25}})
+		if (edge_matched[i] == null){
+			edge_matched[i] = []
+		}
+	}
+  for (var i = 0; i < degree_dist.length; i++) {
+		degree = degree_dist[i]
+		for (var j = 0; j < degree; j++) {
+			alter = Math.round(Math.random()*(degree_dist.length-1))
+			while (alter == i || (edge_matched[i].indexOf(alter) != -1 || edge_matched[alter].indexOf(i) != -1)) {
+				alter = Math.round(Math.random()*(degree_dist.length-1))
+			}
+			edge_matched[i].push(alter)
+			edges.push({from: nodes[i].id, to: nodes[alter].id})
+		}
+  }
+	return {nodes: nodes, edges: edges}
+}
+function generateNet(node_count, maxk, power, mink, net_type){
+	var edgeset = []
+	var nodeset = []
+	net = generateSmallWorld(node_count, maxk, power, mink, 0)
+	edgeset = net.edges
+	nodeset = net.nodes
+  // create a network
+  var container = document.getElementById('mynetwork');
+  var data = {
+    nodes: new vis.DataSet(nodeset),
+    edges: new vis.DataSet(edgeset)
+  };
+	var options = {}
+	statuses = {}
+	for (var i = 0; i < node_count; i++){
+		statuses[numberToLetters(i+1)] = nodeset[i].font.size
+	}
+  risks = {}
+	for (var i = 0; i < node_count; i++){
+		risks[numberToLetters(i+1)] = (Math.random()/10)+0.01
+	}
+	var next_statuses = jQuery.extend(true, {}, statuses);
+	return {container: container, net: new vis.Network(container, data, options), dataset: new vis.DataSet(data, options), options: options, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges, risks: risks}
+}
+function neighbors(node_id, initial){
+	neighbor_ids = []
+	for (var i = 0; i < initial.net.findNode(node_id)[0].edges.length; i++){
+		if (initial.net.findNode(node_id)[0].edges[i].fromId != node_id){
+			neighbor_ids.push(initial.net.findNode(node_id)[0].edges[i].fromId)
+		} else {
+			neighbor_ids.push(initial.net.findNode(node_id)[0].edges[i].toId)
+		}
+	}
+	return neighbor_ids
+}
+function get_statuses(node_ids, initial){
+	statuses = []
+	for (var i = 0; i < node_ids.length; i++){
+		statuses.push(initial.statuses[node_ids[i]])
+	}
+	return statuses
+}
+function count_state(states, state){
+	count = 0
+	for (var i = 0; i < states.length; i++){
+		if (states[i] == state){
+			count += 1
+		}
+	}
+	return count
+}
+function reset_graph(initial){
+	current_states = []
+	for (var key in initial.statuses) {
+	    current_states.push(initial.statuses[key]);
+	}
+	for (var i = 0; i < current_states.length; i++){
+		initial.net.findNode(numberToLetters(i+1))[0].setOptions({color: '#97c2fc'})
+    if (i == 0){
+      initial.statuses[numberToLetters(i+1)] = 150
+    } else {
+      initial.statuses[numberToLetters(i+1)] = 25
+    }
+	}
+	initial.net.redraw()
+}
+function average_from_array(arr){
+	sum = 0
+	for (var i = 0; i < arr.length; i++){
+		sum += arr[i]
+	}
+	return sum/arr.length
+}
+function average_r_zero(new_infection_counts){
+	r_zeros = []
+	for (var i = 1; i < new_infection_counts.length; i++){
+		if (new_infection_counts[i-1] != 0) {
+			r_zeros.push(new_infection_counts[i]/new_infection_counts[i-1])
+		}
+	}
+	return average_from_array(r_zeros)
+}
+function runRandomWalk(initial){
+	reset_graph(initial)
+	current_states = []
+	for (var key in initial.statuses) {
+	    current_states.push(initial.statuses[key]);
+	}
+	all_states = [current_states]
+	function finish_model(step, all_states){
+    document.getElementById("walkers_left").innerHTML = parseInt(all_states[all_states.length-1].reduce(add, 0))
+		if (all_states[all_states.length-1].reduce(add, 0) < 50){
+			clearInterval(step);
+			document.getElementById("run_model").disabled = false;
+			document.getElementById("new_net").disabled = false;
+		}
+	}
+	t = 0
+	step = setInterval(function(){ 
+		all_states.push(runRandomWalkStep(initial, step, all_states))
+		finish_model(step, all_states)
+		document.getElementById("t_step").innerHTML = t
+		t += 1
+	}, 100);
+}
+function runRandomWalkStep(initial, step, all_states){
+	current_states = []
+	for (var key in initial.statuses) {
+	    current_states.push(initial.statuses[key]);
+	}
+	for (var i = 0; i < current_states.length; i++){
+		if (initial.statuses[numberToLetters(i+1)] > 0){
+			neighbor_set = neighbors(numberToLetters(i+1), initial)
+      this_risk = initial.risks[numberToLetters(i+1)]
+      current_count = initial.net.findNode(numberToLetters(i+1))[0].options.font.size 
+      loss_count = current_count*this_risk
+      remains = (current_count-loss_count)/2
+      leaves = current_count-loss_count-remains
+      apportionment = leaves/neighbor_set.length
+      vals = []
+      for (var j = 0; j < neighbor_set.length; j++){
+        this_val = apportionment
+        leaves -= apportionment
+        if (j == neighbor_set.length-1 && leaves != 0){
+          this_val += leaves
+        }
+        vals.push(this_val)
+      }
+      initial.net.findNode(numberToLetters(i+1))[0].setOptions({font: {size: current_count-loss_count-vals.reduce(add, 0)}})
+      initial.statuses[numberToLetters(i+1)] = current_count-loss_count-vals.reduce(add, 0)
+      for (var j = 0; j < neighbor_set.length; j++){
+        current_size = initial.net.findNode(neighbor_set[j])[0].options.font.size
+        initial.net.findNode(neighbor_set[j])[0].setOptions({font: {size: current_size+vals[j]}})
+        initial.statuses[neighbor_set[j]] = current_size+vals[j]
+      }
+      initial.net.redraw()
+		}		
+		current_states = []
+		for (var key in initial.statuses) {
+		    current_states.push(initial.statuses[key]);
+		}
+	}
+	initial.statuses = initial.next_statuses
+	return current_states
+}
+function run(initial){
+	document.getElementById("run_model").disabled = true;
+	document.getElementById("new_net").disabled = true;	
+  reset_graph(initial)
+  runRandomWalk(initial)
+}
+node_count = 50
+maxk = node_count/2
+power = -2.5
+mink = 1
+
+var initial = generateNet(node_count, maxk, power, mink, QueryString.model)
+initial.net.on("stabilized", function (ctx) {
+	document.getElementById("run_model").disabled = false;
+	document.getElementById("new_net").disabled = false;	
+});
+function newNet(initial){
+	document.getElementById("run_model").disabled = true;
+	document.getElementById("new_net").disabled = true;	
+	new_net = generateNet(node_count, maxk, power, mink, QueryString.model)
+	initial.net = new_net.net
+	initial.statuses = new_net.statuses
+	initial.next_statuses = new_net.next_statuses
+	initial.net.on("afterDrawing", function (ctx) {
+		document.getElementById("run_model").disabled = false;
+		document.getElementById("new_net").disabled = false;	
+	});
+	return initial
+}
+</script>
+</body>
+</html>
