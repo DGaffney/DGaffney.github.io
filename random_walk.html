@@ -2,7 +2,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>SIR Model on Simple and Complex Networks</title>
+  <title>Random Walk Simulation</title>
   <link href="http://fonts.googleapis.com/css?family=Noto+Sans:300,400,700" rel="stylesheet" type="text/css">
    <link href="http://fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic" rel="stylesheet" type="text/css">
    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
@@ -301,7 +301,7 @@ function runRandomWalkStep(initial, step, all_states){
       this_risk = initial.risks[numberToLetters(i+1)]
       current_count = initial.net.findNode(numberToLetters(i+1))[0].options.font.size 
       loss_count = current_count*this_risk
-      remains = (current_count-loss_count)/2
+      remains = (current_count-loss_count)/10
       leaves = current_count-loss_count-remains
       apportionment = leaves/neighbor_set.length
       vals = []
