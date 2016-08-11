@@ -77,6 +77,7 @@
 		</main>
 	</section>
 <script type="text/javascript">
+var walker_count = 2000
 function add(a, b) {
     return a + b;
 }
@@ -166,11 +167,7 @@ function generateSmallWorld(node_count, maxk, power, mink, label_start_i){
 	}
 	edge_matched = {}
   for (var i = 0; i < node_labels.length; i++) {
-    size = 0
-    if (i == 0){
-      size = 125
-    }
-		nodes.push({id: node_labels[i], label: node_labels[i], font:{size:size+25}})
+		nodes.push({id: node_labels[i], label: node_labels[i], font:{size:parseInt(Math.random()*100)+25}})
 		if (edge_matched[i] == null){
 			edge_matched[i] = []
 		}
