@@ -72,12 +72,14 @@
 			</form>
 			<p style="width:600px">
 				<span style="padding-left: 20px; padding-right:20px;">T-Step: <span id="t_step">0</span></span>
-				<span >Walkers left: <span id="walkers_left">0</span></span>
+				<span>Walkers left: <span id="walkers_left">0</span></span>
+				<span>Total interactions: <span id="total_interactions">0</span></span>
 			</p>
 		</main>
 	</section>
 <script type="text/javascript">
 var walker_count = 2000
+var total_transits = 0
 function add(a, b) {
     return a + b;
 }
@@ -268,6 +270,7 @@ function average_r_zero(new_infection_counts){
 	return average_from_array(r_zeros)
 }
 function runRandomWalk(initial){
+  total_transits = 0
 	reset_graph(initial)
 	current_states = []
 	for (var key in initial.statuses) {
@@ -302,6 +305,8 @@ function runRandomWalkStep(initial, step, all_states){
       current_count = initial.net.findNode(numberToLetters(i+1))[0].options.font.size 
       loss_count = parseInt(current_count*this_risk)
       remains = parseInt((current_count-loss_count)/10)
+      total_transits += remains
+      document.getElementById("total_interactions").innerHTML = total_transits
       leaves = parseInt(current_count-loss_count-remains)
       apportionment = parseInt(leaves/neighbor_set.length)
       vals = []
