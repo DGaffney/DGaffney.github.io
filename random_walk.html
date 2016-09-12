@@ -72,7 +72,7 @@
 			</form>
 			<p style="width:600px">
 				<span style="padding-left: 20px; padding-right:20px;">T-Step: <span id="t_step">0</span></span>
-				<span>Walkers left: <span id="walkers_left">0</span></span>
+				<span style="padding-right: 20px;">Walkers left: <span id="walkers_left">0</span></span>
 				<span>Total interactions: <span id="total_interactions">0</span></span>
 			</p>
 		</main>
@@ -169,7 +169,7 @@ function generateSmallWorld(node_count, maxk, power, mink, label_start_i){
 	}
 	edge_matched = {}
   for (var i = 0; i < node_labels.length; i++) {
-		nodes.push({id: node_labels[i], label: node_labels[i], font:{size:parseInt(Math.random()*50)+5}})
+		nodes.push({id: node_labels[i], label: node_labels[i], font:{size:parseInt(Math.random()*50)+5}, })
 		if (edge_matched[i] == null){
 			edge_matched[i] = []
 		}
@@ -193,12 +193,6 @@ function generateNet(node_count, maxk, power, mink, net_type){
 	net = generateSmallWorld(node_count, maxk, power, mink, 0)
 	edgeset = net.edges
 	nodeset = net.nodes
-  // create a network
-  var container = document.getElementById('mynetwork');
-  var data = {
-    nodes: new vis.DataSet(nodeset),
-    edges: new vis.DataSet(edgeset)
-  };
 	var options = {}
 	statuses = {}
 	for (var i = 0; i < node_count; i++){
@@ -206,10 +200,34 @@ function generateNet(node_count, maxk, power, mink, net_type){
 	}
   risks = {}
 	for (var i = 0; i < node_count; i++){
-		risks[numberToLetters(i+1)] = (Math.random()/10)+0.01
+		risks[numberToLetters(i+1)] = (Math.random()/5)+0.01
 	}
+  colors = []
+  for (var i = 0; i < node_count; i++){
+    color = "#000000"
+    border_color = "#000000"
+    if (risks[numberToLetters(i+1)] < 0.06){
+      color = "#00ff00"
+      border_color = "#00cc00"
+    } else if (risks[numberToLetters(i+1)] < 0.13){
+      color = "#ffff00"
+      border_color = "#cccc00"
+    } else {
+      color = "#ff0000"
+      border_color = "#cc0000"
+    }
+    nodeset[i].color = {background: color, border: border_color}
+    colors.push({background: color, border: border_color})
+  }
+  // create a network
+  var container = document.getElementById('mynetwork');
+  var data = {
+    nodes: new vis.DataSet(nodeset),
+    edges: new vis.DataSet(edgeset)
+  };
+
 	var next_statuses = jQuery.extend(true, {}, statuses);
-	return {container: container, net: new vis.Network(container, data, options), dataset: new vis.DataSet(data, options), options: options, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges, risks: risks}
+	return {colors: colors, container: container, net: new vis.Network(container, data, options), dataset: new vis.DataSet(data, options), options: options, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges, risks: risks}
 }
 function neighbors(node_id, initial){
 	neighbor_ids = []
@@ -244,7 +262,6 @@ function reset_graph(initial){
 	    current_states.push(initial.statuses[key]);
 	}
 	for (var i = 0; i < current_states.length; i++){
-		initial.net.findNode(numberToLetters(i+1))[0].setOptions({color: '#97c2fc'})
     if (i == 0){
       initial.statuses[numberToLetters(i+1)] = 150
     } else {
@@ -278,7 +295,7 @@ function runRandomWalk(initial){
 	}
 	all_states = [current_states]
 	function finish_model(step, all_states){
-    document.getElementById("walkers_left").innerHTML = parseInt(all_states[all_states.length-1].reduce(add, 0))
+    document.getElementById("walkers_left").innerHTML = parseInt(all_states[all_states.length-1].reduce(add, 0)).toLocaleString()
 		if (all_states[all_states.length-1].reduce(add, 0) < 50){
 			clearInterval(step);
 			document.getElementById("run_model").disabled = false;
@@ -306,7 +323,7 @@ function runRandomWalkStep(initial, step, all_states){
       loss_count = parseInt(current_count*this_risk)
       remains = parseInt((current_count-loss_count)/10)
       total_transits += remains
-      document.getElementById("total_interactions").innerHTML = total_transits
+      document.getElementById("total_interactions").innerHTML = total_transits.toLocaleString()
       leaves = parseInt(current_count-loss_count-remains)
       apportionment = parseInt(leaves/neighbor_set.length)
       vals = []
@@ -318,12 +335,11 @@ function runRandomWalkStep(initial, step, all_states){
         }
         vals.push(this_val)
       }
-      console.log(vals)
       initial.net.findNode(numberToLetters(i+1))[0].setOptions({font: {size: current_count-loss_count-vals.reduce(add, 0)}})
       initial.statuses[numberToLetters(i+1)] = current_count-loss_count-vals.reduce(add, 0)
       for (var j = 0; j < neighbor_set.length; j++){
         current_size = initial.net.findNode(neighbor_set[j])[0].options.font.size
-        initial.net.findNode(neighbor_set[j])[0].setOptions({font: {size: current_size+vals[j]}})
+        initial.net.findNode(neighbor_set[j])[0].setOptions({color: initial.colors[j], font: {size: current_size+vals[j]}})
         initial.statuses[neighbor_set[j]] = current_size+vals[j]
       }
       initial.net.redraw()
