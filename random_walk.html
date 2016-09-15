@@ -227,7 +227,7 @@ function generateNet(node_count, maxk, power, mink, net_type){
   };
 
 	var next_statuses = jQuery.extend(true, {}, statuses);
-	return {colors: colors, container: container, net: new vis.Network(container, data, options), dataset: new vis.DataSet(data, options), options: options, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges, risks: risks}
+	return {colors: colors, container: container, net: new vis.Network(container, data, options), dataset: new vis.DataSet(data, options), options: options, original_statuses: statuses, statuses: statuses, next_statuses: next_statuses, nodes: data.nodes, edges: data.edges, risks: risks}
 }
 function neighbors(node_id, initial){
 	neighbor_ids = []
@@ -355,7 +355,14 @@ function runRandomWalkStep(initial, step, all_states){
 function run(initial){
 	document.getElementById("run_model").disabled = true;
 	document.getElementById("new_net").disabled = true;	
+  document.getElementById("total_interactions").innerHTML = 0
+  document.getElementById("walkers_left").innerHTML = 0
+  document.getElementById("t_step").innerHTML = 0
   reset_graph(initial)
+  
+	for (var i = 0; i < initial.colors.length; i++){
+		initial.net.findNode(numberToLetters(i+1))[0].setOptions({font: {size: initial.original_statuses[numberToLetters(i+1)]}})
+	}  
   runRandomWalk(initial)
 }
 node_count = 50
