@@ -36,32 +36,17 @@
         <!-- End -->
     </head>
 
-    <body onload="start();">
-
-        <table cellpadding="10" cellspacing="0" style="width: 100%">
-            <tr>
-                <td>
-                    <span style="font-size: large; font-family: Verdana; background-color: #F0F0F0;"><strong>Gephi Seadragon Export</strong></span>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div id="seadragon"></div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h3>Instructions to put online</h3>
-                    <ul>
-                        <li>Copy all files on your server.</li>
-                        <li>Use this HTML file as an example, copy the script and define a <strong>seadragon</strong> div in your page.</li>
-                        <li>Find help on the <a href="http://www.seadragon.com/developer/ajax/">Seadragon AJAX website</a>.</li>
-                        <li>Note that its not possible to preview Seadragon locally with Chrome browser.</li>
-                    </ul>
-                </td>
-            </tr>
-        </table>
-
+    <body>
+<div id="example-xmlhttprequest" class="openseadragon">
+        <script type="text/javascript">
+            OpenSeadragon({
+                id:            "example-xmlhttprequest",
+                prefixUrl:     "/openseadragon/images/",
+                tileSources:   "/example-images/rbc/rbc0001/2003/rosen.xml",
+                showNavigator:  true
+            });
+        </script><div id="seadragon" class="openseadragon-container" style="background: none transparent; border: none; margin: 0px; padding: 0px; position: relative; width: 100%; height: 100%; overflow: hidden; left: 0px; top: 0px; text-align: left;"></div>
+    </div>
     </body>
 
 </html>
