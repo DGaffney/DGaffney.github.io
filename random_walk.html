@@ -335,7 +335,7 @@ function runRandomWalkStep(initial, step, all_states){
         }
         vals.push(this_val)
       }
-      initial.net.findNode(numberToLetters(i+1))[0].setOptions({font: {size: current_count-loss_count-vals.reduce(add, 0)}})
+      initial.net.findNode(numberToLetters(i+1))[0].setOptions({color: initial.colors[i], font: {size: current_count-loss_count-vals.reduce(add, 0)}})
       initial.statuses[numberToLetters(i+1)] = current_count-loss_count-vals.reduce(add, 0)
       for (var j = 0; j < neighbor_set.length; j++){
         current_size = initial.net.findNode(neighbor_set[j])[0].options.font.size
@@ -361,7 +361,7 @@ function run(initial){
   reset_graph(initial)
   
 	for (var i = 0; i < initial.colors.length; i++){
-		initial.net.findNode(numberToLetters(i+1))[0].setOptions({font: {size: initial.original_statuses[numberToLetters(i+1)]}})
+		initial.net.findNode(numberToLetters(i+1))[0].setOptions({color: initial.colors[i], font: {size: initial.original_statuses[numberToLetters(i+1)]}})
 	}  
   runRandomWalk(initial)
 }
