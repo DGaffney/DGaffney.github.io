@@ -308,9 +308,9 @@ function runRandomWalk(initial){
     if (all_states[all_states.length-1].reduce(add, 0) < 0){
       document.getElementById("walkers_left").innerHTML = 0
     } else {
-      document.getElementById("walkers_left").innerHTML = parseInt(all_states[all_states.length-1].reduce(add, 0)).toLocaleString()  
+      // document.getElementById("walkers_left").innerHTML = parseInt(all_states[all_states.length-1].reduce(add, 0)).toLocaleString()
     }
-		if (all_states[all_states.length-1].reduce(add, 0) <= 0){
+		if (all_states[all_states.length-1].reduce(add, 0) <= 0 || all_states.length > 31){
 			clearInterval(step);
 			document.getElementById("run_model").disabled = false;
 			document.getElementById("new_net").disabled = false;
@@ -333,10 +333,7 @@ function runRandomWalkStep(initial, step, all_states){
 		neighbor_set = neighbors(numberToLetters(i+1), initial)
     this_risk = initial.risks[numberToLetters(i+1)]
     current_count = all_states[all_states.length-1][i]//initial.net.findNode(numberToLetters(i+1))[0].options.font.size 
-    loss_count = parseInt(current_count*this_risk)
-    if (loss_count == 0){
-      loss_count = 1
-    }
+    loss_count = 0//parseInt(current_count*this_risk)
     remains = parseInt((current_count-loss_count)/neighbor_set.length+1)
     if (remains == current_count){
       remains = current_count-loss_count
