@@ -52,7 +52,7 @@
 		<main id="main" class="content">
 			<form id="control">
 			</form>
-			<p style="width:600px"><span style="padding-right:20px;">Total Infected: <span id="infection_result">0</span>/50</span>
+			<p style="width:600px"><span style="padding-right:20px;">Total Infected: <span id="infection_result">0</span>/100</span>
 				<span style="padding-right:20px;">T-Step: <span id="t_step">0</span></span>
 				<span >Rolling R0: <span id="r_zero">0</span></span>
 			</p>
@@ -497,7 +497,7 @@ function run(initial){
 		runSIRComplex(initial, beta, mu, seeds)
 	}
 }
-node_count = 50
+node_count = 100
 maxk = node_count/2
 power = -2.5
 mink = 1
