@@ -470,10 +470,11 @@ function run(initial){
 			forego = 0.001
 			document.getElementById("forego").value = forego
 		}
-		if (mu > 0.9){
-			mu = 0.9
+		if (forego > 0.9){
+			forego = 0.9
 			document.getElementById("forego").value = forego
 		}
+		forego = 1-forego
 		runSIRSimple(initial, beta, mu, forego, seeds)
 	} else {
 		beta = parseFloat(document.getElementById("beta_complex").value)
