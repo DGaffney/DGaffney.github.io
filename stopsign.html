@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stop Sign Detection</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script src="http://cdn.rawgit.com/ccampbell/mousetrap/master/mousetrap.min.js"></script>
+<!--<script src="https://widget.battleforthenet.com/widget.js" async></script>-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="apple-touch-icon" sizes="57x57" href="/favicon.ico/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/favicon.ico/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/favicon.ico/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/favicon.ico/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/favicon.ico/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/favicon.ico/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/favicon.ico/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/favicon.ico/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="/favicon.ico/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon.ico/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico/favicon-16x16.png">
+<link rel="manifest" href="/favicon.ico/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/favicon.ico/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<style type="text/css">
+  .jumbotron_img_responsive {
+  background-image: url("http://imgur.com/lGviCv8.gif");
+  background-size: cover;
+  min-height:223px;
+  color: #f40000;
+  padding-top: 30px;
+}
+
+@media only screen and (min-width: 768px) {
+    .jumbotron_img_responsive { 
+      background-image: url("http://i.imgur.com/80Hy7TO.gif");
+      background-size: cover;
+      min-height:249px;
+      color: #f40000;
+      padding-top: 30px;
+    }
+}
+/* For width 400px and larger: */
+@media only screen and (min-width: 750px) {
+    .jumbotron_img_responsive { 
+      background-image: url("http://i.imgur.com/80Hy7TO.gif");
+      background-size: cover;
+      min-height:402px;
+      color: #f40000;
+      padding-top: 30px;
+    }
+}
+/* Space out content a bit */
+body {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+/* Custom page header */
+.header {
+  padding-bottom: 1rem;
+  border-bottom: .05rem solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 3rem;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 1.5rem;
+  color: #777;
+  border-top: .05rem solid #e5e5e5;
+}
+
+/* Customize container */
+@media (min-width: 48em) {
+  .container {
+    max-width: 46rem;
+  }
+}
+.container-narrow > hr {
+  margin: 2rem 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: .05rem solid #e5e5e5;
+}
+.jumbotron .btn {
+  padding: .75rem 1.5rem;
+  font-size: 1.5rem;
+}
+
+/* Supporting marketing content */
+.marketing {
+  margin: 3rem 0;
+}
+.marketing p + h4 {
+  margin-top: 1.5rem;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 48em) {
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 2rem;
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
+    border-bottom: 0;
+  }
+}
+  body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+</style>
+
+  </head>
+  <body>
+      <div class="container">
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<div class="jumbotron jumbotron_img_responsive" id="header">
+  <h1 class="display-3">Stop Sign Detector</h1>
+</div>
+<hr>
+<div class="row">
+  <div class="col">
+    <h3>So there's this Stop Sign</h3>
+    <img src="http://i.imgur.com/yxzMhh4.png" class="img-fluid" />
+  </div>
+</div>
+<hr>
+<div class="row">
+  <h2>Everyone Runs this Sign</h2>
+</div>
+<div class="row">
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/9RKrizy.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/4aPfN1o.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/vgWoO74.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/YVhuF4X.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/J9Ws2jZ.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/vGNHUeA.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/FTAsNQp.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/xX7EvvA.gif" />
+  </div>
+  <div class="col-sm-4">
+    <img class="img-responsive" style="width:100% ;padding-top: 2px" src="http://i.imgur.com/h8YfYmJ.gif" />
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-12">
+    <h2>My house has a good view of it from the back...</h2>
+    <div class="embed-responsive embed-responsive-16by9">
+      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/jPK0Q58wMNg?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row text-center">
+  <div class="col-sm-12">
+    <h2>But of course, I can't spend time counting cars...</h2>
+    <p><b>But a webcam attached to a Raspberry Pi sure can</b></p>
+    <img class="img img-responsive" src="http://i.imgur.com/nolbmkf.jpg" />
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-12">
+    <h2>But I *can* get my housemate to drive his car around the block until I detect it</h2>
+    <div class="embed-responsive embed-responsive-16by9">
+      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/J9MxFMW2M94?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-12">
+    <h2>And then I can really smooth out my object detector code until I get crisp cars every time...</h2>
+    <div class="embed-responsive embed-responsive-16by9">
+      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/bi1S5A4ix1Y?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-12">
+    <h2>...and *then* I can capture summary statistics about the motion of objects to determine likely violations, like driving backwards</h2>
+    <div class="embed-responsive embed-responsive-16by9">
+      <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/htJMwTOJh3E?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <h2>📊 Stats (I moved so results are now static)⏱️</h2>
+</div>
+<div class="row">
+  <h4>Total hourly stop sign runs</h4>
+  <div id="chart_div_hourly" style="width: 760px; height: 400px;"></div>
+  <script>
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+    google.charts.setOnLoadCallback(drawBasic);
+
+    function drawBasic() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Hour', 'Full', 'Weekday', 'Weekend'],
+          ['12 am', 39,  31, 7],
+          ['1 am',  21,  15, 6],
+          ['2 am',  4,  0, 4],
+          ['3 am',  7,  0, 8],
+          ['4 am',  6,  6, 0],
+          ['5 am',  29,  25, 3],
+          ['6 am',  386,  357, 13],
+          ['7 am',  582,  507, 58],
+          ['8 am',  729,  598, 116],
+          ['9 am',  971,  732, 231],
+          ['10 am', 1828, 1385, 428],
+          ['11 am', 2484, 1725, 766],
+          ['12 pm', 2840, 1931, 927],
+          ['1 pm',  3131, 2207, 929],
+          ['2 pm',  3885, 2804, 1075],
+          ['3 pm',  2477, 1718, 768],
+          ['4 pm',  3641, 2626, 1011],
+          ['5 pm',  3394, 2251, 1174],
+          ['6 pm',  4009, 2765, 1261],
+          ['7 pm',  3470, 2622, 822],
+          ['8 pm',  537, 358, 183],
+          ['9 pm',  697, 434, 273],
+          ['10 pm', 435, 357, 70],
+          ['11 pm', 105, 50, 59],
+        ]);
+       var options = {
+          chart: {
+            width: 760,
+            height: 400,
+            title: 'Total Hourly Transits',
+            hAxis: {
+              title: 'Time of Day',
+              format: 'h:mm a'
+            }
+          }
+        };
+
+          var chart = new google.visualization.ColumnChart(
+            document.getElementById('chart_div_hourly'));
+
+          chart.draw(data, options);
+        }
+  </script>
+</div>
+<div class="row">
+  <h4>Total daily stop sign runs</h4>
+  <div id="chart_div_daily" style="width: 760px; height: 400px;"></div>
+  <script>
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+    google.charts.setOnLoadCallback(drawBasic);
+
+    function drawBasic() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Day of Week', 'Stop Sign Runs'],
+          ['Sunday', 3315],
+          ['Monday', 5407],
+          ['Tuesday', 5499],
+          ['Wednesday', 5754],
+          ['Thursday', 5656],
+          ['Friday', 5894],
+          ['Saturday', 4191],
+        ]);
+       var options = {
+          chart: {
+            width: 760,
+            height: 400,
+            title: 'Total Daily Transits',
+            hAxis: {
+              title: 'Time of Day',
+              format: 'h:mm a'
+            }
+          }
+        };
+
+          var chart = new google.visualization.ColumnChart(
+            document.getElementById('chart_div_daily'));
+
+          chart.draw(data, options);
+        }
+  </script>
+  <p>(Note that these totals result in separate totals due to the difference in resolution of hourly vs. daily)</p>
+</div>
+<div class="row">
+  <div class="col">
+    3,354 Total scans, 10,024 total suspected cases
+  </div>
+  <div class="col">
+    207+ Hours collected, spanning 53 days
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    ≈6,360 total cars seen, ≈4,223 seen long enough to measure. An estimated ≈39,569 cars have passed the sign, with an average of ≈736 per day.
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    Machine learning on stop violations is still pending - too few actual stops to accurately assess. As of now, 90.27% of all stops are violations according to human assessment, leading to an estimated 5,741 observed violations, with an estimated ≈35,719 total stop sign runs since monitoring began.
+  </div>
+</div>
+<hr />
+<div class="row">
+  <h2>🏋️ Help Train the Machine 🏋️</h2>
+<p>(Note that machine learners are now shut off - pages are left for archival purposes only)</p>
+</div>
+<div class="row">
+  <div class="col">
+    <h3><a href="/train/presence">Train Car Presence</a></h3>
+    11,768 total votes recorded
+    
+      <p>Current Machine Accuracy: 92.13% (<a href="/machine/presence">see examples</a>)</p>
+    
+  </div>
+  <div class="col">
+    <h3><a href="/train/full_scene">Train Full Scene Check</a></h3>
+    3,805 total votes recorded
+    
+      <p>Current Machine Accuracy: 88.83% (<a href="/machine/full_scene">see examples</a>)</p>
+    
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <h3><a href="/train/stop_violations">Train Stop Violations</a></h3>
+    3,844 total votes recorded
+    
+      <p>Current Machine Accuracy: 93.42% (<a href="/machine/stop_violations">see examples</a>)</p>
+    
+  </div>
+  <div class="col">
+    <h3><a href="/train/wrong_way_violations">Train Wrong Way Violations</a></h3>
+    6,056 total votes recorded
+    
+  </div>
+</div>
+<hr />
+<footer>
+  <a href="http://devingaffney.com">Devin, 2017</a> | <a href="http://github.com/DGaffney/stop_sign_project">GitHub</a>
+</footer>
+
+      </div>
+    </body>
+  </body>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-93841529-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</html>
+
