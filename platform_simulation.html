@@ -146,6 +146,12 @@
             border-radius: 12px;
             border: 1px solid #333;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            height: 400px;
+            position: relative;
+        }
+        
+        canvas {
+            max-height: 100%;
         }
         
         .chart-title {
@@ -380,6 +386,8 @@
             constructor() {
                 this.reset();
                 this.setupParameters();
+                this.frameCount = 0;
+                this.maxDataPoints = 200; // Limit data points
             }
             
             reset() {
@@ -472,13 +480,22 @@
                 
                 // Record history
                 this.time += dt;
-                if (this.time % 10 === 0) { // Record every 10 timesteps
+                this.frameCount++;
+                
+                if (this.frameCount % 30 === 0) { // Record every 30 frames
                     this.history.time.push(this.time);
                     this.history.totalUsers.push(this.N);
                     this.history.activeUsers.push(this.A);
                     this.history.contentRate.push(this.C);
                     this.history.freshness.push(this.F);
                     this.history.kValue.push(this.k);
+                    
+                    // Limit data points to prevent memory issues
+                    if (this.history.time.length > this.maxDataPoints) {
+                        Object.keys(this.history).forEach(key => {
+                            this.history[key].shift();
+                        });
+                    }
                 }
                 
                 // Check for death
@@ -534,6 +551,9 @@
         const model = new PlatformModel();
         let animationId = null;
         let isPaused = false;
+        let lastFrameTime = 0;
+        const targetFPS = 30; // Limit to 30 FPS
+        const frameInterval = 1000 / targetFPS;
         
         // Chart setup
         const userCtx = document.getElementById('userChart').getContext('2d');
@@ -710,10 +730,14 @@
             }
         }
         
-        function animate() {
+        function animate(currentTime) {
             if (!isPaused) {
-                model.step();
-                updateUI();
+                // Throttle animation to target FPS
+                if (currentTime - lastFrameTime >= frameInterval) {
+                    model.step();
+                    updateUI();
+                    lastFrameTime = currentTime;
+                }
                 
                 if (!model.isDead) {
                     animationId = requestAnimationFrame(animate);
