@@ -3,7 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Effects: Platform Life Cycles</title>
+    <title>Network Effects: Platform Life Cycles - Interactive Simulation</title>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com/network-effects-simulation">
+    <meta property="og:title" content="Network Effects: Platform Life Cycles - Interactive Simulation">
+    <meta property="og:description" content="Explore how social platforms grow and collapse through network effects. Interactive simulation showing viral growth, steady states, and platform death spirals based on user satisfaction dynamics.">
+    <meta property="og:image" content="https://yourwebsite.com/images/network-effects-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://yourwebsite.com/network-effects-simulation">
+    <meta name="twitter:title" content="Network Effects: Platform Life Cycles">
+    <meta name="twitter:description" content="Interactive simulation of social platform dynamics. Watch platforms grow virally or collapse based on user satisfaction and network effects.">
+    <meta name="twitter:image" content="https://yourwebsite.com/images/network-effects-preview.png">
+    
+    <!-- Standard Meta -->
+    <meta name="description" content="Interactive simulation demonstrating how social platforms succeed or fail through network effects, user satisfaction, and content creation dynamics. Based on epidemiological models.">
+    <meta name="keywords" content="network effects, platform dynamics, social media, viral growth, simulation, interactive">
+    <meta name="author" content="Your Name">
+    
+    <!-- Favicon placeholder -->
+    <link rel="icon" type="image/png" href="https://yourwebsite.com/favicon.png">
+    
     <style>
         * {
             margin: 0;
@@ -425,31 +450,28 @@
 
     <script>
         // Constants
-        const UNIVERSE_SIZE = 100000;
+        const UNIVERSE_SIZE = 10000000; // 10 million users
         
         // Presets for different platform scenarios
         const PRESETS = {
             explosive: {
-                seedUsers: 5000,
-                quality: 1.5,
-                creatorPct: 5,
-                halfLife: 24,
-                expectedPosts: 5,
+                seedUsers: 10000,
+                quality: 2.5,
+                creatorPct: 8,
+                expectedPosts: 3,
                 name: "Explosive Platform"
             },
             steady: {
-                seedUsers: 1000,
-                quality: 1.0,
-                creatorPct: 3,
-                halfLife: 12,
-                expectedPosts: 8,
+                seedUsers: 5000,
+                quality: 1.2,
+                creatorPct: 5,
+                expectedPosts: 5,
                 name: "Steady Platform"
             },
             failed: {
-                seedUsers: 500,
-                quality: 0.3,
-                creatorPct: 1,
-                halfLife: 6,
+                seedUsers: 2000,
+                quality: 0.4,
+                creatorPct: 2,
                 expectedPosts: 10,
                 name: "Failed Launch"
             }
@@ -457,9 +479,9 @@
         
         // Platform state
         let state = {
-            totalUsers: 5000,
-            activeUsers: 2500,
-            creators: 250,
+            totalUsers: 10000,
+            activeUsers: 5000,
+            creators: 800,
             contentStock: [],  // Array of {created: timestamp, quality: number}
             avgPostsSeen: 0,
             userSatisfaction: 0.5,
@@ -468,15 +490,15 @@
             dayCount: 0,
             phase: 'launch',
             smoothedGrowth: 0,
-            smoothedChurn: 0.02
+            smoothedChurn: 0.01
         };
         
         // Parameters
         let params = {
-            seedUsers: 5000,
-            quality: 0.8,
-            creatorPct: 5,
-            expectedPosts: 5,
+            seedUsers: 10000,
+            quality: 2.5,
+            creatorPct: 8,
+            expectedPosts: 3,
             speed: 1.0
         };
         
@@ -582,11 +604,11 @@
                 avgPostsSeen: 5,
                 userSatisfaction: 0.5,
                 returnRate: 0.7,
-                networkEffect: 0.1,
+                networkEffect: 0.05,
                 dayCount: 0,
                 phase: 'launch',
                 smoothedGrowth: 0,
-                smoothedChurn: 0.02
+                smoothedChurn: 0.01
             };
             
             history.days = [];
@@ -655,39 +677,42 @@
             // Posts seen = friend creators * their posting rate * quality boost
             state.avgPostsSeen = activeCreatorFriends * avgPostsPerCreator * avgContentQuality;
             
-            // User satisfaction - sigmoid curve centered at expected posts
+            // User satisfaction - more forgiving sigmoid curve
             const satisfactionRatio = state.avgPostsSeen / params.expectedPosts;
-            state.userSatisfaction = 1 / (1 + Math.exp(-3 * (satisfactionRatio - 0.8)));
+            // Sigmoid centered at 0.5 ratio, not 0.8
+            state.userSatisfaction = 1 / (1 + Math.exp(-4 * (satisfactionRatio - 0.5)));
             
-            // Return rate with higher floor for network effects
-            const networkPull = Math.min(0.3, state.activeUsers / state.totalUsers * 0.5);
-            state.returnRate = 0.4 + 0.5 * state.userSatisfaction + networkPull;
+            // Return rate with strong network effects
+            const networkPull = Math.min(0.4, Math.pow(state.activeUsers / state.totalUsers, 0.5));
+            state.returnRate = 0.3 + 0.4 * state.userSatisfaction + networkPull;
             
-            // Network effect strength
+            // Network effect strength - more powerful
             const userRatio = state.totalUsers / UNIVERSE_SIZE;
-            state.networkEffect = Math.sqrt(userRatio) * Math.sqrt(state.userSatisfaction) * 
+            const scaleFactor = Math.log10(state.totalUsers + 1) / 7; // Scales with log of users
+            state.networkEffect = scaleFactor * Math.sqrt(state.userSatisfaction) * 
                                  Math.sqrt(activeFriendRatio);
             
             // User dynamics based on satisfaction
-            if (state.userSatisfaction > 0.3 || state.networkEffect > 0.1) {
+            if (state.userSatisfaction > 0.2 || state.networkEffect > 0.05) {
                 // Growth from satisfied users OR network pull
-                const viralCoeff = (state.userSatisfaction + state.networkEffect) * params.quality;
-                const targetGrowth = state.activeUsers * viralCoeff * 0.02;
-                state.smoothedGrowth = state.smoothedGrowth * 0.7 + targetGrowth * 0.3;
+                const viralCoeff = (state.userSatisfaction * 2 + state.networkEffect * 3) * params.quality;
+                const targetGrowth = state.activeUsers * viralCoeff * 0.001 * 
+                                   (1 - state.totalUsers / UNIVERSE_SIZE); // Logistic growth
+                state.smoothedGrowth = state.smoothedGrowth * 0.8 + targetGrowth * 0.2;
                 
                 const remainingPop = UNIVERSE_SIZE - state.totalUsers;
-                const newUsers = Math.min(state.smoothedGrowth, remainingPop);
+                const newUsers = Math.min(state.smoothedGrowth, remainingPop * 0.01); // Cap at 1% of remaining
                 
                 state.totalUsers = Math.min(UNIVERSE_SIZE, state.totalUsers + newUsers);
-                state.activeUsers += newUsers * 0.7; // 70% of new users are immediately active
+                state.activeUsers += newUsers * 0.8; // 80% of new users are immediately active
                 state.creators += newUsers * params.creatorPct / 100;
             }
             
-            // Natural churn - but offset by reactivation
-            const baseChurnRate = 0.02; // 2% daily base churn
-            const satisfactionMultiplier = 2 - state.userSatisfaction; // 1x at full satisfaction, 2x at zero
+            // Natural churn - much lower and based on satisfaction
+            const baseChurnRate = 0.005; // 0.5% daily base churn
+            const satisfactionMultiplier = Math.pow(2 - state.userSatisfaction, 2); // Exponential penalty
             const targetChurn = baseChurnRate * satisfactionMultiplier;
-            state.smoothedChurn = state.smoothedChurn * 0.9 + targetChurn * 0.1;
+            state.smoothedChurn = state.smoothedChurn * 0.95 + targetChurn * 0.05;
             
             // Apply churn
             const activeUsersLost = state.activeUsers * state.smoothedChurn;
@@ -696,18 +721,18 @@
             state.activeUsers = Math.max(0, state.activeUsers - activeUsersLost);
             state.creators = Math.max(0, state.creators - creatorsLost);
             
-            // Reactivation based on network pull - this is KEY
+            // Reactivation based on network pull - stronger effect
             const inactiveUsers = state.totalUsers - state.activeUsers;
-            const reactivationRate = state.returnRate * state.networkEffect * 0.1;
-            const reactivated = inactiveUsers * reactivationRate;
+            const reactivationRate = state.returnRate * state.networkEffect * 0.2;
+            const reactivated = inactiveUsers * Math.min(0.1, reactivationRate); // Cap at 10% daily
             
             state.activeUsers = Math.min(state.totalUsers, state.activeUsers + reactivated);
             
-            // Creator conversion - active users can become creators based on platform health
+            // Creator conversion - more aggressive
             const nonCreators = state.activeUsers - state.creators;
-            const creatorConversionRate = state.userSatisfaction * params.quality * 0.001;
+            const creatorConversionRate = state.userSatisfaction * params.quality * 0.002;
             const newCreators = nonCreators * creatorConversionRate;
-            state.creators = Math.min(state.activeUsers * 0.3, state.creators + newCreators);
+            state.creators = Math.min(state.activeUsers * 0.4, state.creators + newCreators); // Up to 40%
             
             // Platform-level user loss only happens with very low satisfaction
             if (state.userSatisfaction < 0.2) {
@@ -734,13 +759,13 @@
                 (state.totalUsers - history.totalUsers[history.totalUsers.length - 7] * 1000) /
                 Math.max(1, history.totalUsers[history.totalUsers.length - 7] * 1000) : 0.1;
             
-            if (state.totalUsers < 10000) {
+            if (state.totalUsers < 50000) {
                 state.phase = 'launch';
-            } else if (growthRate > 0.1 && userRatio < 0.5) {
+            } else if (growthRate > 0.15 && userRatio < 0.3) {
                 state.phase = 'growth';
-            } else if (growthRate > 0.05 && state.userSatisfaction > 0.7) {
+            } else if (growthRate > 0.05 && state.userSatisfaction > 0.6) {
                 state.phase = 'viral';
-            } else if (userRatio > 0.5 && state.userSatisfaction > 0.5) {
+            } else if (userRatio > 0.3 && state.userSatisfaction > 0.5) {
                 state.phase = 'dominant';
             } else if (state.userSatisfaction > 0.3) {
                 state.phase = 'decline';
@@ -771,12 +796,16 @@
         function updateUI() {
             // Stats
             document.getElementById('totalUsers').textContent = 
-                state.totalUsers >= 1000 ? 
+                state.totalUsers >= 1000000 ? 
+                (state.totalUsers / 1000000).toFixed(1) + 'M' : 
+                state.totalUsers >= 1000 ?
                 (state.totalUsers / 1000).toFixed(1) + 'K' : 
                 Math.floor(state.totalUsers);
             
             document.getElementById('activeUsers').textContent = 
-                state.activeUsers >= 1000 ? 
+                state.activeUsers >= 1000000 ? 
+                (state.activeUsers / 1000000).toFixed(1) + 'M' : 
+                state.activeUsers >= 1000 ?
                 (state.activeUsers / 1000).toFixed(1) + 'K' : 
                 Math.floor(state.activeUsers);
             
